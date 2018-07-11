@@ -1,20 +1,15 @@
 const BASE_URL = 'https://www.metaweather.com/'
 
-export default (apiHandler = {
+const apiHandler = {
   getLocation(locationName) {
-    locationName = 'london'
     if (locationName) {
-      const URL = `${BASE_URL}api/location/search/?query=${locationName}`
-      try {
-        fetch(locationName)
-          .then(response => response.json())
-          .then(data => console.log(data))
-          .catch(err => new Error('Location not found'))
-      } catch (error) {
-        console.warn(error)
-      }
+      fetch('https://www.metaweather.com/api/location/search/?query=london')
+        .then(response => response.json())
+        .then(data => console.log(data))
     }
   },
   getLocationForecast(locationId) {},
   getWeatherStateIcon(stateId) {}
-})
+}
+
+export default apiHandler
