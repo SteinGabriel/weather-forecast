@@ -1,6 +1,7 @@
 # Weather Forecast
 
 A weather forecast web app built in Reactjs.
+
 ## Getting Started
 
 These instructions will get you a copy of the project up and running on your local machine for development and testing purposes.
@@ -15,7 +16,7 @@ These instructions will get you a copy of the project up and running on your loc
 #### Project
 
 ```
-git clone https://github.com/SteinGabriel/weather-forecast.git
+git clone https://github.com/SteinGabriel/wheather-forecast.git
 ```
 
 #### Client
@@ -26,8 +27,6 @@ cd weater-forecast/
 
 ```
 npm intall
-or
-yarn add
 ```
 
 ```
