@@ -1,82 +1,28 @@
 import React, { Component } from 'react'
-import styled from 'styled-components'
 import TextField from '@material-ui/core/TextField'
 import Button from '@material-ui/core/Button'
 import './App.css'
-
-const PageWrapper = styled.div`
-  margin: 0 auto;
-  width: 100vw;
-  height: 100vh;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-`
-
-const InputWrapper = styled.div`
-  height: auto;
-  width: 100vw;
-  display: flex;
-  justify-content: center;
-`
-
-const SearchInput = styled.input`
-  width: 150px;
-  height: 20px;
-  border-radius: 5px;
-`
-
-const ResultList = styled.div`
-  width: 150px;
-  heght: auto;
-  margin: 0 auto;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-`
-
-const ForecastContainer = styled.div`
-  width: 90vw;
-  margin: 0 auto;
-  height: 200px;
-  display: flex;
-  flex-direction: row;
-  justify-content: center;
-`
-
-const ForecastCard = styled.div`
-  width: 100px;
-  height: 95%;
-  display: flex;
-  flex-direction: column;
-  padding: 1em;
-  margin-right: 10px;
-  border: 1px solid gray;
-`
-
-const CardPrimary = styled.h3`
-  width: 100%;
-  height: 15px;
-  display: flex;
-  justify-content: center;
-  margin-bottom: 20px;
-`
-const CardSecundary = styled.h5`
-  width: 100%;
-  height: 15px;
-  display: flex;
-  color: lightgray;
-  justify-content: center;
-  margin-bottom: 6px;
-`
+import {
+  PageWrapper,
+  InputWrapper,
+  SearchInput,
+  ResultList,
+  ResultMessage,
+  ForecastContainer,
+  ForecastCard,
+  CardPrimary,
+  CardSecundary,
+  WeatherStateRow,
+  Icon
+} from './style'
 
 class App extends Component {
   constructor(props) {
     super(props)
     this.state = {
       locationName: null,
-      locationsData: [],
       selectedLocationId: null,
+      locationsData: [],
       forecastData: []
     }
   }
@@ -88,6 +34,7 @@ class App extends Component {
 
   getLocationsData() {
     const locationName = this.state.locationName
+    // Results should apper after the third typed letter
     if (String(locationName).length > 2) {
       fetch(
         `https://www.metaweather.com/api/location/search/?query=${locationName}`
@@ -96,6 +43,7 @@ class App extends Component {
         .then(data => this.setLocationsData(data))
     } else {
       this.clearLocationsData()
+      this.clearForecastData()
     }
   }
 
@@ -107,11 +55,20 @@ class App extends Component {
     this.setState({ locationsData: [] })
   }
 
-  onCityPressed = locationId => {
+  clearForecastData() {
+    this.setState({ forecastData: [] })
+  }
+
+  onCityPressed(locationId, locationName) {
     if (locationId) {
       this.clearLocationsData()
+      this.setLocationName(locationName)
       this.getLocationForecast(locationId)
     }
+  }
+
+  setLocationName(locationName) {
+    this.setState({ locationName })
   }
 
   getLocationForecast(locationId) {
@@ -124,12 +81,34 @@ class App extends Component {
     this.setState({ forecastData: data.consolidated_weather })
   }
 
+  // This way the message under the search input is built dynamically
+  // following the input's behaviour
+  //
+  // If a location's name is typed it returns the number of results
+  // If a location's forecast data exists, that means that the user already
+  // searched for a location, so it returns the message: 5-day weather forecast for {location name}
+  getResultMessage() {
+    let message
+    if (this.state.locationsData.length > 0) {
+      const count = this.state.locationsData.length
+      message = `search results (${count})`
+    } else if (this.state.forecastData.length > 0) {
+      const locationName = this.state.locationName
+      message = `5-day weather forecast for ${locationName}`
+    } else {
+      message = ''
+    }
+    return message
+  }
+
+  // Returns the day of the week (Mon, Tue, Wed...)
   getDayName(d) {
     const date = new Date(d)
     const dayName = String(date).split(' ')[0]
     return dayName
   }
 
+  // Returns the date format mm/dd
   getDayDate(d) {
     const date = new Date(d)
     const month = String(date).split(' ')[1]
@@ -146,7 +125,6 @@ class App extends Component {
       <PageWrapper>
         <InputWrapper>
           <TextField
-            id="location"
             name="locationName"
             label="Location"
             margin="normal"
@@ -154,27 +132,30 @@ class App extends Component {
             onChange={this.onLocationChange.bind(this)}
           />
         </InputWrapper>
+        <ResultMessage>{this.getResultMessage()}</ResultMessage>
         <ResultList>
           {this.state.locationsData.map(location => {
-            const title = location.title
+            const locationName = location.title
             const locationId = location.woeid
 
             return (
               <Button
                 key={location.woeid}
-                onClick={() => this.onCityPressed(locationId)}
+                onClick={() => this.onCityPressed(locationId, locationName)}
                 className="location-button"
               >
-                {title}
+                {locationName}
               </Button>
             )
           })}
         </ResultList>
         <ForecastContainer>
-          {this.state.forecastData.map(forecast => {
+          {this.state.forecastData.slice(0, 5).map(forecast => {
+            const weatherState = forecast.weather_state_name
+            const iconName = forecast.weather_state_abbr
+            const iconUrl = `https://www.metaweather.com/static/img/weather/${iconName}.svg`
             const dayName = this.getDayName(forecast.applicable_date)
             const dayDate = this.getDayDate(forecast.applicable_date)
-            const weatherState = forecast.weather_state_name
             const maxDegrees = this.getFormattedTemperature(forecast.max_temp)
             const minDegrees = this.getFormattedTemperature(forecast.min_temp)
 
@@ -182,7 +163,12 @@ class App extends Component {
               <ForecastCard key={forecast.id}>
                 <CardPrimary>{dayName}</CardPrimary>
                 <CardSecundary>{dayDate}</CardSecundary>
-                <CardSecundary>{weatherState}</CardSecundary>
+                <WeatherStateRow>
+                  <CardSecundary>{weatherState}</CardSecundary>
+                  <Icon>
+                    <img src={iconUrl} alt="Weather State Icon" />
+                  </Icon>
+                </WeatherStateRow>
                 <CardPrimary>{maxDegrees}</CardPrimary>
                 <CardSecundary>{minDegrees}</CardSecundary>
               </ForecastCard>
