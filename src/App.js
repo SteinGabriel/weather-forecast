@@ -49,15 +49,25 @@ const ForecastCard = styled.div`
   height: 95%;
   display: flex;
   flex-direction: column;
+  padding: 1em;
   margin-right: 10px;
   border: 1px solid gray;
 `
 
-const CardTitle = styled.div`
+const CardPrimary = styled.h3`
   width: 100%;
   height: 15px;
   display: flex;
   justify-content: center;
+  margin-bottom: 20px;
+`
+const CardSecundary = styled.h5`
+  width: 100%;
+  height: 15px;
+  display: flex;
+  color: lightgray;
+  justify-content: center;
+  margin-bottom: 6px;
 `
 
 class App extends Component {
@@ -114,6 +124,23 @@ class App extends Component {
     this.setState({ forecastData: data.consolidated_weather })
   }
 
+  getDayName(d) {
+    const date = new Date(d)
+    const dayName = String(date).split(' ')[0]
+    return dayName
+  }
+
+  getDayDate(d) {
+    const date = new Date(d)
+    const month = String(date).split(' ')[1]
+    const day = String(date).split(' ')[2]
+    return month + '/' + day
+  }
+
+  getFormattedTemperature(temp) {
+    return Math.floor(temp) + '°'
+  }
+
   render() {
     return (
       <PageWrapper>
@@ -129,20 +156,37 @@ class App extends Component {
         </InputWrapper>
         <ResultList>
           {this.state.locationsData.map(location => {
+            const title = location.title
+            const locationId = location.woeid
+
             return (
               <Button
                 key={location.woeid}
-                onClick={() => this.onCityPressed(location.woeid)}
+                onClick={() => this.onCityPressed(locationId)}
                 className="location-button"
               >
-                {location.title}
+                {title}
               </Button>
             )
           })}
         </ResultList>
         <ForecastContainer>
           {this.state.forecastData.map(forecast => {
-            return <ForecastCard key={forecast.id} />
+            const dayName = this.getDayName(forecast.applicable_date)
+            const dayDate = this.getDayDate(forecast.applicable_date)
+            const weatherState = forecast.weather_state_name
+            const maxDegrees = this.getFormattedTemperature(forecast.max_temp)
+            const minDegrees = this.getFormattedTemperature(forecast.min_temp)
+
+            return (
+              <ForecastCard key={forecast.id}>
+                <CardPrimary>{dayName}</CardPrimary>
+                <CardSecundary>{dayDate}</CardSecundary>
+                <CardSecundary>{weatherState}</CardSecundary>
+                <CardPrimary>{maxDegrees}</CardPrimary>
+                <CardSecundary>{minDegrees}</CardSecundary>
+              </ForecastCard>
+            )
           })}
         </ForecastContainer>
       </PageWrapper>
