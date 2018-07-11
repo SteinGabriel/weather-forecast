@@ -22,7 +22,7 @@ git clone https://github.com/SteinGabriel/wheather-forecast.git
 #### Client
 
 ```
-cd weater-forecast/
+cd wheater-forecast/
 ```
 
 ```
