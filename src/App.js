@@ -35,7 +35,6 @@ class App extends Component {
 
   getLocationsData() {
     const locationName = this.state.locationName
-    console.log('port => ' + process.env.PORT)
     const url = `/api/location/${locationName}`
     // Results should apper after the third typed letter
     if (String(locationName).length > 2) {

@@ -4,12 +4,12 @@ const bodyParser = require('body-parser')
 const session = require('express-session')
 const cors = require('cors')
 const errorHandler = require('errorhandler')
+const morgan = require('morgan')
 
 const isProduction = process.env.NODE_ENV === 'production'
 const app = express()
 
 app.use(cors())
-app.use(require('morgan')('dev'))
 app.use(bodyParser.urlencoded({ extended: false }))
 app.use(bodyParser.json())
 app.use(express.static(path.join(__dirname, 'public')))
@@ -24,14 +24,14 @@ app.use(
 
 if (!isProduction) {
   app.use(errorHandler())
-}
-
-if (isProduction) {
+  app.use(morgan('dev'))
+} else {
+  app.use(morgan('common'))
   // Serve any static files
   app.use(express.static(path.join(__dirname, '../build')))
   // Handle React routing, return all requests to React app
   app.get('*', function(req, res) {
-    res.sendFile(path.join(__dirname, '../build', '../public/index.html'))
+    res.sendFile(path.join(__dirname, '../build', 'index.html'))
   })
 }
 
