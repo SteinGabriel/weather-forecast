@@ -17,6 +17,8 @@ import {
   Icon
 } from './style'
 
+const testArr = [1, 2, 3, 4, 5, 6, 7, 8, 9]
+
 class App extends Component {
   constructor(props) {
     super(props)
@@ -35,9 +37,10 @@ class App extends Component {
 
   getLocationsData() {
     const locationName = this.state.locationName
-    const url = `/api/location/${locationName}`
     // Results should apper after the third typed letter
     if (String(locationName).length > 2) {
+      const url = `/api/location/${locationName}`
+
       axios
         .get(url)
         .then(response => this.setLocationsData(response.data))
@@ -49,7 +52,12 @@ class App extends Component {
   }
 
   setLocationsData(data) {
-    this.setState({ locationsData: data })
+    console.log(JSON.stringify(data))
+    this.setState({ locationsData: data }, () =>
+      console.log(
+        'locationsData => ' + JSON.stringify(this.state.locationsData)
+      )
+    )
   }
 
   clearLocationsData() {
