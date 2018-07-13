@@ -2,6 +2,7 @@ import React, { Component } from 'react'
 import TextField from '@material-ui/core/TextField'
 import Button from '@material-ui/core/Button'
 import './App.css'
+import axios from 'axios'
 import {
   PageWrapper,
   InputWrapper,
@@ -36,11 +37,18 @@ class App extends Component {
     const locationName = this.state.locationName
     // Results should apper after the third typed letter
     if (String(locationName).length > 2) {
-      fetch(
-        `https://www.metaweather.com/api/location/search/?query=${locationName}`
-      )
+      console.log('Fetching location ' + locationName)
+
+      axios
+        .get(`http://localhost:8000/api/location/${locationName}`)
         .then(response => response.json())
-        .then(data => this.setLocationsData(data))
+        .then(data => console.log(data))
+        .catch(err => console.warn(err))
+      // .then(data => {
+      //   console.log(data)
+
+      //   //this.setLocationsData(data)
+      // })
     } else {
       this.clearLocationsData()
       this.clearForecastData()
