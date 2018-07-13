@@ -35,7 +35,8 @@ class App extends Component {
 
   getLocationsData() {
     const locationName = this.state.locationName
-    const url = `http://localhost:8000/api/location/${locationName}`
+    console.log('port => ' + process.env.PORT)
+    const url = `/api/location/${locationName}`
     // Results should apper after the third typed letter
     if (String(locationName).length > 2) {
       axios
@@ -73,7 +74,7 @@ class App extends Component {
   }
 
   getLocationForecast(locationId) {
-    const url = `http://localhost:8000/api/forecast/${locationId}`
+    const url = `/api/forecast/${locationId}`
 
     fetch(url)
       .then(response => response.json())
