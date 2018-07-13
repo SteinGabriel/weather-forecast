@@ -35,20 +35,13 @@ class App extends Component {
 
   getLocationsData() {
     const locationName = this.state.locationName
+    const url = `http://localhost:8000/api/location/${locationName}`
     // Results should apper after the third typed letter
     if (String(locationName).length > 2) {
-      console.log('Fetching location ' + locationName)
-
       axios
-        .get(`http://localhost:8000/api/location/${locationName}`)
-        .then(response => response.json())
-        .then(data => console.log(data))
+        .get(url)
+        .then(response => this.setLocationsData(response.data))
         .catch(err => console.warn(err))
-      // .then(data => {
-      //   console.log(data)
-
-      //   //this.setLocationsData(data)
-      // })
     } else {
       this.clearLocationsData()
       this.clearForecastData()
@@ -80,7 +73,9 @@ class App extends Component {
   }
 
   getLocationForecast(locationId) {
-    fetch(`https://www.metaweather.com/api/location/${locationId}`)
+    const url = `http://localhost:8000/api/forecast/${locationId}`
+
+    fetch(url)
       .then(response => response.json())
       .then(data => this.setCityForecastData(data))
   }
@@ -125,7 +120,7 @@ class App extends Component {
   }
 
   getFormattedTemperature(temp) {
-    return Math.floor(temp) + '°'
+    return Math.floor(temp) + '°C'
   }
 
   render() {
